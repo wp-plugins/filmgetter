@@ -3,7 +3,7 @@
 Plugin Name: FilmGetter
 Plugin URI: http://dun.se/plugins/
 Description: Gets the Movie info from TheMoveDB.
-Version: 0.1
+Version: 0.1.1
 Author: Håkan Nylén
 Author URI: http://dun.se
 License: GPL2
@@ -37,20 +37,46 @@ function FilmGetter_install()
 {
 	global $wpdb;
 	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
-    $structure = "CREATE TABLE $table (
+	
+	$check = $wpdb->get_results("SELECT * FROM " . $table . "LIMIT 1");
+	
+	if(count($check) == 0) {
+		$structure = "CREATE TABLE $table (
         id INT(12) NOT NULL AUTO_INCREMENT,
         movie_name VARCHAR(80) NOT NULL,
         movie_release VARCHAR(20) NOT NULL,
         movie_rate VARCHAR(20) NOT NULL,
-        movie_trailer VARCHAR(20) NOT NULL,
+        movie_trailer VARCHAR(120) NOT NULL,
         movie_plot VARCHAR(350) NOT NULL,
         movie_url VARCHAR(120) NOT NULL,
         movie_imdb VARCHAR(120) NOT NULL,
         movie_pic VARCHAR(150) NOT NULL,
-	UNIQUE KEY id (id)
-    );";
-    $wpdb->query($structure);
+	    UNIQUE KEY id (id)
+        );";
+    	$wpdb->query($structure);
+    }
+    else {
+    	FilmGetter_update();
+    }
 	add_option("TMDbApi", "", "", "yes");
+}
+function FilmGetter_check()
+{
+	global $wpdb;
+	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
+	
+	$check = $wpdb->get_results("SELECT * FROM " . $table . " LIMIT 1");
+	
+	if(count($check) > 0) {
+		FilmGetter_update();
+	}
+}
+function FilmGetter_update()
+{
+	global $wpdb;
+	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
+	$sql = "alter table " . $table . " modify movie_trailer VARCHAR(120);";
+	$wpdb->query($sql);
 }
 
 // uninstall the plugin, deletes the table, not the option
@@ -117,18 +143,42 @@ function FilmGetter_add_film($id)
 	
 	$tmdb_xml = new TMDb($tmdbapi,TMDb::XML);
 	$xml = simpleXMLToArray(simplexml_load_string($tmdb_xml->getMovie($id)));
+	//Check if the array is empty.
+	if(!array_empty($xml))
+	{
+		$name = mysql_real_escape_string($xml[movies][movie][name]);
+		$rate = $xml[movies][movie][rating];
+		$trailer = $xml[movies][movie][trailer];
+		$plot = mysql_real_escape_string($xml[movies][movie][overview]);
+		$release = $xml[movies][movie][released];
+		$pic = $xml[movies][movie][images][image][0][url];
+		$url = $xml[movies][movie][url];
+		$imdb = "http://www.imdb.com/title/".$xml[movies][movie][imdb_id]."/";
 	
-	$name = mysql_real_escape_string($xml[movies][movie][name]);
-	$rate = $xml[movies][movie][rating];
-	$trailer = $xml[movies][movie][trailer];
-	$plot = mysql_real_escape_string($xml[movies][movie][overview]);
-	$release = $xml[movies][movie][released];
-	$pic = $xml[movies][movie][images][image][0][url];
-	$url = $xml[movies][movie][url];
-	$imdb = "http://www.imdb.com/title/".$xml[movies][movie][imdb_id]."/";
-	
-	$structure = "INSERT INTO ".$table." (movie_name, movie_release, movie_pic, movie_rate, movie_trailer, movie_plot, movie_url, movie_imdb) VALUES('{$name}', '{$release}', '{$pic}', '{$rate}', '{$trailer}', '{$plot}', '{$url}', '{$imdb}');";
-    $wpdb->query($structure);
+		$structure = "INSERT INTO ".$table." (movie_name, movie_release, movie_pic, movie_rate, movie_trailer, movie_plot, movie_url, movie_imdb) VALUES('{$name}', '{$release}', '{$pic}', '{$rate}', '{$trailer}', '{$plot}', '{$url}', '{$imdb}');";
+    	$wpdb->query($structure);
+    }
+}
+//remove a film
+function FilmGetter_remove_film($id)
+{
+	global $wpdb;
+	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
+	$return = true;
+	if($id)
+	{
+		$sql = "DELETE FROM " . $table . " WHERE id = ".$id.";";
+		if(!$wpdb->query($sql))
+		{
+			$return = false;
+		}
+		
+		
+	}
+	else {
+		$return = false;
+	}
+	return $return;
 }
 
 //fix parse for the tag [film]
@@ -159,6 +209,7 @@ add_filter('the_content', 'FilmGetter_parse_imdb', 2);
 //handle the whole admin section.
 function FilmGetter_menu()
 {
+FilmGetter_check();
 	  	global $wpdb;
 
 if (isset($_POST['update_FilmGetterSettings'])) {
@@ -177,12 +228,26 @@ if (isset($_POST['add_movie'])) {
 <div class="updated"><p><strong><?php _e("Movie Added", "FilmGetter");?></strong></p></div>
 <?php
 }
+if (isset($_GET['remove_movie'])) {
+                        if (isset($_GET['remove_movie'])) {
+                            FilmGetter_remove_film(mysql_real_escape_string($_GET['remove_movie']));
+                        }   
+                        ?>
+<div class="error"><p><strong><?php _e("Movie Removed", "FilmGetter");?></strong></p></div>
+<?php
+}
+if (isset($_POST['update'])) {
+                        FilmGetter_check();   
+                        ?>
+<div class="updated"><p><strong><?php _e("Plugin Updated", "FilmGetter");?></strong></p></div>
+<?php
+}
 ?>
     <div class="wrap">
 	<h2>FilmGetter</h2>
 	<p>write [film] and then the movie name and then [/film] to show the info on your pages and articles, getting on this 	database.</p>
 	
-	<p>Sadly, you need to add the Movie manuelly in this version to get the info about the movie.</p>
+	<p>Sadly, you need to add the Movie manually in this version to get the info about the movie.</p>
 	
 	
 	<h3>General Settings</h3>
@@ -198,16 +263,27 @@ if (isset($_POST['add_movie'])) {
 	$result = $wpdb->get_results("SELECT * FROM ".$wpdb->prefix."FilmGetter");
 	foreach($result as $resulti)
 	{
-    	echo "<div style='display:block;clear:both;margin-top:5px;'><img src='".$resulti->movie_pic."' style='float:left;width:80px;height:100px;margin-right:5px;' /><strong>".$resulti->movie_name."</strong><br />".$resulti->movie_release." - ".$resulti->movie_rate."<br />".$resulti->movie_plot."<br /><a href='".$resulti->movie_trailer."'>Trailer</a> - <a href='".$resulti->movie_url."'>TMDb</a> - <a href='".$resulti->movie_imdb."'>IMDb</a></div>";
+    	echo "<div style='display:block;clear:both;margin-top:5px;'><img src='".$resulti->movie_pic."' style='float:left;width:80px;height:100px;margin-right:5px;' /><strong>".$resulti->movie_name."</strong> - [<a href='".$_SERVER["REQUEST_URI"]."&remove_movie=".$resulti->id."'>REMOVE</a>]<br />".$resulti->movie_release." - ".$resulti->movie_rate."<br />".$resulti->movie_plot."<br /><a href='".$resulti->movie_trailer."'>Trailer</a> - <a href='".$resulti->movie_url."'>TMDb</a> - <a href='".$resulti->movie_imdb."'>IMDb</a></div>";
     	echo '<div style="width:100%;display:block;clear:both;height:5px;"></div>';
 	}
 	?>
 	<div style="display:block;width:100%;clear:both;"></div>
 	<h3>Add Movie</h3>
 	<form method="post">
-	<label for="movie_id">TMDb ID or IMDB ID:</label><input name="movie_id" />
+	<p>Get the TMDb id for a film on <a href="http://www.themoviedb.org/">http://www.themoviedb.org</a> - take the nr in the url from the site.</p>
+	<label for="movie_id">TMDb ID:</label><input name="movie_id" />
+	<p>Adding with IMDb id doesn't work for now. It's on the way.</p>
 	<div class="submit">
 	<input type="submit" name="add_movie" value="<?php _e('Add Movie', 'FilmGetter') ?>" /></div>
+	</form>
+	</div>
+	
+	<div style="display:block;width:100%;clear:both;"></div>
+	<h3>Update the plugin</h3>
+	<form method="post">
+	<p>Update the plugin. to 0.1.1</p>
+	<div class="submit">
+	<input type="submit" name="update" value="<?php _e('Update Plugin', 'FilmGetter') ?>" /></div>
 	</form>
 	</div>
 	<?
@@ -308,4 +384,17 @@ function simpleXMLToArray($xml,
        
         return $return;
     }
+    function array_empty($mixed) {
+    	if (is_array($mixed)) {
+        	foreach ($mixed as $value) {
+            	if (!array_empty($value)) {
+                	return false;
+            	}
+        	}
+    	}
+   		 elseif (!empty($mixed)) {
+        	return false;
+    	}
+    	return true;
+	}
 ?>
