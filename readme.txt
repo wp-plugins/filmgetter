@@ -1,6 +1,6 @@
 === FilmGetter ===
 Contributors: confact
-Tags: movie, poster, imdb, TMDb
+Tags: movie, poster, imdb, TMDb, film, plot, rating
 Requires at least: 2.1
 Tested up to: 3.0
 Stable tag: 4.3
@@ -26,6 +26,12 @@ No screenshots for now.
 
 == Changelog ==
 
+= 0.1.1 =
+* Fixed database error (the youtube URL was too short).
+* Added feature: Remove movie.
+* Added License text. (Damn me!)
+* Fixed some spellings.
+
 = 0.1 =
 * Added [film] tag.
 * Added [imdb] tag.
@@ -34,6 +40,9 @@ No screenshots for now.
 * Added feature add movie in admin section.
 
 == Upgrade Notice ==
+
+= 0.1.1 =
+Fixed a error in the database (see more info in the changelog), fixed a function to fix it, just upload the new version and go in to the admin page and click on the button in the Update plugin section.
 
 = 0.1 =
 The first version out. no need to upgrade ;)
