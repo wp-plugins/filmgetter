@@ -17,14 +17,22 @@ Filmgetter gets the information from TMDb about a movie you have choosen. Adding
 1. Upload the 'FilmGetter' map to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Paste in the TMDb-API number in the FilmGetter admin page.
-4. Add movies via the Add Movie section on the admin page.
+4. Add movies via the Add Movie section on the admin page.*
 5. Use the [film]movie name[/film] to show the filminfo, or use [imdb]movie name[/imdb] to show just imdb-link
+
+* No need for that in version 0.1.2
 
 == Screenshots ==
 
 No screenshots for now.
 
 == Changelog ==
+
+= 0.1.2 =
+* Fixed so if the trailer url is empty, the url will be #.
+* Fixed so if the imdb url is empty, the url will be #.
+* Added Feature: Add movies in the admin page from IMDB and TMDb ids.
+* Added Beta Feature: Adding movies automatically, in this beta you need to be specific on the movie names, no trailers will be added either.
 
 = 0.1.1 =
 * Fixed database error (the youtube URL was too short).
@@ -40,6 +48,9 @@ No screenshots for now.
 * Added feature add movie in admin section.
 
 == Upgrade Notice ==
+
+= 0.1.2 =
+no database errors fixed in this, no need to update, if you have already update in 0.1.1
 
 = 0.1.1 =
 Fixed a error in the database (see more info in the changelog), fixed a function to fix it, just upload the new version and go in to the admin page and click on the button in the Update plugin section.
