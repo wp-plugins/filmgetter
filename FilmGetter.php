@@ -347,7 +347,7 @@ if (isset($_POST['update'])) {
 	$result = $wpdb->get_results("SELECT * FROM ".$wpdb->prefix."FilmGetter");
 	foreach($result as $resulti)
 	{
-		echo "<div class='FilmGetter-film'><img src='".$resulti->movie_pic."' class='poster' /><strong>".$resulti->movie_name."</strong> - [<a href='".$_SERVER["REQUEST_URI"]."&remove_movie=".$resulti->id."'>REMOVE</a>]<br />".$resulti->movie_release." - ".$resulti->movie_rate."<br />".$resulti->movie_plot."<br /><a href='".$resulti->movie_trailer."'>Trailer</a> - <a href='".$resulti->movie_url."'>TMDb</a> - <a href='".$resulti->movie_imdb."'>IMDb</a><div class='clear'></div></div>";
+		echo "<div style='display:block;margin-top:5px;clear:both;width:100%;height:100px;margin-bottom:10px;'><img src='".$resulti->movie_pic."' style='float:left;width:80px;height:100px;margin-right:5px;' /><strong>".$resulti->movie_name."</strong> - [<a href='".$_SERVER["REQUEST_URI"]."&remove_movie=".$resulti->id."'>REMOVE</a>]<br />".$resulti->movie_release." - ".$resulti->movie_rate."<br />".$resulti->movie_plot."<br /><a href='".$resulti->movie_trailer."'>Trailer</a> - <a href='".$resulti->movie_url."'>TMDb</a> - <a href='".$resulti->movie_imdb."'>IMDb</a><div class='clear'></div></div>";
 		echo "<div class='FilmGetter-fixer'></div>";
 	}
 	?>
