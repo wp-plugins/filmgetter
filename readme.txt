@@ -14,19 +14,24 @@ Filmgetter gets the information from TMDb about a movie you have choosen. Adding
 
 == Installation ==
 
-1. Upload the 'FilmGetter' map to the `/wp-content/plugins/` directory
+1. Upload the 'filmgetter' directory to the `/wp-content/plugins/` directory - make sure to have the plugin directory named with lowcase or the stylesheet won't work.
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Paste in the TMDb-API number in the FilmGetter admin page.
 4. Add movies via the Add Movie section on the admin page.*
 5. Use the [film]movie name[/film] to show the filminfo, or use [imdb]movie name[/imdb] to show just imdb-link
 
-* No need for that in version 0.1.2
+* No need for that in version 0.1.2-
 
 == Screenshots ==
 
 No screenshots for now.
 
 == Changelog ==
+
+= 0.1.3 =
+* Fixed Stylesheet, style.css is the file you want to edit, to change the style, the design of the film-info.
+* Fixed the style, it won't go over other things in the design now.
+* Fixed grammar, spellings.
 
 = 0.1.2 =
 * Fixed so if the trailer url is empty, the url will be #.
@@ -48,6 +53,9 @@ No screenshots for now.
 * Added feature add movie in admin section.
 
 == Upgrade Notice ==
+
+= 0.1.3 =
+Make sure to have the plugin in a directory, named filmgetter, with lowcase. Or the stylesheet won't work.
 
 = 0.1.2 =
 no database errors fixed in this, no need to update, if you have already update in 0.1.1

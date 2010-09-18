@@ -3,7 +3,7 @@
 Plugin Name: FilmGetter
 Plugin URI: http://dun.se/plugins/
 Description: Gets the Movie info from TheMoveDB.
-Version: 0.1.2
+Version: 0.1.3
 Author: Håkan Nylén
 Author URI: http://dun.se
 License: GPL2
@@ -89,6 +89,7 @@ function FilmGetter_uninstall()
 	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
 	remove_filter('the_content', 'FilmGetter_parse_film', 2);
 	remove_filter('the_content', 'FilmGetter_parse_imdb', 2);
+	remove_filter('stylesheet', 'FilmGetter_parse_style', 2);
 	$structure = "DROP TABLE ".$table.";";
 	$wpdb->query($structure);
 }
@@ -106,8 +107,8 @@ function FilmGetter_show_film($name)
 	{
 		foreach($results as $result)
 		{
-			$content .= "<div style='display:block;margin-top:5px;clear:bloth;width:100%;height:100px;margin-bottom:10px;'><img src='".$result->movie_pic."' style='float:left;width:80px;height:100px;margin-right:5px;' /><strong>".$result->movie_name."</strong><br />".$result->movie_release." - ".$result->movie_rate."<br />".$result->movie_plot."<br /><a href='".$result->movie_trailer."'>Trailer</a> - <a href='".$result->movie_url."'>TMDb</a> - <a href='".$result->movie_imdb."'>IMDb</a></div>";
-			$content .= "<div style='display:block;width:100%;clear:both;heeight:30px;'></div>";
+			$content .= "<div class='FilmGetter-film'><img src='".$result->movie_pic."' class='poster' /><strong>".$result->movie_name."</strong><br />".$result->movie_release." - ".$result->movie_rate."<br />".$result->movie_plot."<br /><a href='".$result->movie_trailer."'>Trailer</a> - <a href='".$result->movie_url."'>TMDb</a> - <a href='".$result->movie_imdb."'>IMDb</a><div class='clear'></div></div>";
+			$content .= "<div class='FilmGetter-fixer'></div>";
 		}				
 	}
 	else {
@@ -130,7 +131,7 @@ function FilmGetter_show_imdb($name)
 	{
 		foreach($results as $result)
 		{
-			$content .= "<a href='".$result->movie_imdb."'>IMDb</a>";
+			$content .= "<span class='FilmGetter-imdb'><a href='".$result->movie_imdb."'>IMDb</a></span>";
 		}				
 	}
 	else {
@@ -249,8 +250,6 @@ function FilmGetter_remove_film($id)
 		{
 			$return = false;
 		}
-		
-		
 	}
 	else {
 		$return = false;
@@ -279,8 +278,16 @@ function FilmGetter_parse_imdb($content)
 
 	return $changedContent;
 }
+function FilmGetter_parse_style($content)
+{
+	$path = get_settings('siteurl') . '/wp-content/plugins/filmgetter/style.css';
+	print <<< CSS
+	<link rel="stylesheet" type="text/css" href="$path" />
+CSS;
+}
 add_filter('the_content', 'FilmGetter_parse_film', 2);
 add_filter('the_content', 'FilmGetter_parse_imdb', 2);
+add_filter('wp_head', 'FilmGetter_parse_style', 2);
 
 
 //handle the whole admin section.
@@ -322,7 +329,7 @@ if (isset($_POST['update'])) {
 ?>
     <div class="wrap">
 	<h2>FilmGetter</h2>
-	<p>write [film] and then the movie name and then [/film] to show the info on your pages and articles, getting on this 	database.</p>
+	<p>write [film] and then the movie name and end it with a [/film] to show the info on your pages and articles, getting on this 	database.</p>
 	
 	<p>Sadly, you need to add the Movie manually in this version to get the info about the movie.</p>
 	
@@ -340,8 +347,8 @@ if (isset($_POST['update'])) {
 	$result = $wpdb->get_results("SELECT * FROM ".$wpdb->prefix."FilmGetter");
 	foreach($result as $resulti)
 	{
-    	echo "<div style='display:block;clear:both;margin-top:5px;'><img src='".$resulti->movie_pic."' style='float:left;width:80px;height:100px;margin-right:5px;' /><strong>".$resulti->movie_name."</strong> - [<a href='".$_SERVER["REQUEST_URI"]."&remove_movie=".$resulti->id."'>REMOVE</a>]<br />".$resulti->movie_release." - ".$resulti->movie_rate."<br />".$resulti->movie_plot."<br /><a href='".$resulti->movie_trailer."'>Trailer</a> - <a href='".$resulti->movie_url."'>TMDb</a> - <a href='".$resulti->movie_imdb."'>IMDb</a></div>";
-    	echo '<div style="width:100%;display:block;clear:both;height:5px;"></div>';
+		echo "<div class='FilmGetter-film'><img src='".$resulti->movie_pic."' class='poster' /><strong>".$resulti->movie_name."</strong> - [<a href='".$_SERVER["REQUEST_URI"]."&remove_movie=".$resulti->id."'>REMOVE</a>]<br />".$resulti->movie_release." - ".$resulti->movie_rate."<br />".$resulti->movie_plot."<br /><a href='".$resulti->movie_trailer."'>Trailer</a> - <a href='".$resulti->movie_url."'>TMDb</a> - <a href='".$resulti->movie_imdb."'>IMDb</a><div class='clear'></div></div>";
+		echo "<div class='FilmGetter-fixer'></div>";
 	}
 	?>
 	<div style="display:block;width:100%;clear:both;"></div>
