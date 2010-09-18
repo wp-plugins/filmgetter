@@ -28,6 +28,9 @@ No screenshots for now.
 
 == Changelog ==
 
+= 0.1.3.1 =
+* Fixed the style in the admin.
+
 = 0.1.3 =
 * Fixed Stylesheet, style.css is the file you want to edit, to change the style, the design of the film-info.
 * Fixed the style, it won't go over other things in the design now.
