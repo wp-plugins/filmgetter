@@ -3,7 +3,7 @@
 Plugin Name: FilmGetter
 Plugin URI: http://dun.se/plugins/
 Description: Gets the Movie info from TheMoveDB.
-Version: 0.1.3
+Version: 0.1.3.1
 Author: Håkan Nylén
 Author URI: http://dun.se
 License: GPL2
@@ -94,53 +94,6 @@ function FilmGetter_uninstall()
 	$wpdb->query($structure);
 }
 
-//show the movies information with pic for the tag [film]
-function FilmGetter_show_film($name)
-{
-	global $wpdb;
-	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
-    $sql = "SELECT * FROM ".$table." WHERE movie_name LIKE '{$name}' LIMIT 1";
-    
-    $results = $wpdb->get_results($sql);
-    
-    if(count($results) > 0)
-	{
-		foreach($results as $result)
-		{
-			$content .= "<div class='FilmGetter-film'><img src='".$result->movie_pic."' class='poster' /><strong>".$result->movie_name."</strong><br />".$result->movie_release." - ".$result->movie_rate."<br />".$result->movie_plot."<br /><a href='".$result->movie_trailer."'>Trailer</a> - <a href='".$result->movie_url."'>TMDb</a> - <a href='".$result->movie_imdb."'>IMDb</a><div class='clear'></div></div>";
-			$content .= "<div class='FilmGetter-fixer'></div>";
-		}				
-	}
-	else {
-		FilmGetter_search_andAdd_film($name);
-	}
-    
-    return $content;
-}
-
-//get the movie's imdb url and post it for the tag [imdb]
-function FilmGetter_show_imdb($name)
-{
-	global $wpdb;
-	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
-    $sql = "SELECT * FROM ".$table." WHERE movie_name LIKE '{$name}' LIMIT 1";
-    
-    $results = $wpdb->get_results($sql);
-    
-    if(count($results) > 0)
-	{
-		foreach($results as $result)
-		{
-			$content .= "<span class='FilmGetter-imdb'><a href='".$result->movie_imdb."'>IMDb</a></span>";
-		}				
-	}
-	else {
-		FilmGetter_search_andAdd_film($name);
-	}
-
-    
-    return $content;
-}
 
 //searching for the movie, adding it to the database and send the visitor along to show functions again.
 function FilmGetter_search_andAdd_film($searchname)
@@ -278,6 +231,29 @@ function FilmGetter_parse_imdb($content)
 
 	return $changedContent;
 }
+
+//fix parse for the tag [poster]
+function FilmGetter_parse_poster($content)
+{
+	$search = "/\[poster\](.*?)\[\/poster\]/is";
+	preg_match($search, $content, $filmid);
+	$film = FilmGetter_show_poster($filmid[1]);
+	$changedContent = preg_replace($search, "$film", $content);
+
+	return $changedContent;
+}
+
+//fix parse for the tag [plot]
+function FilmGetter_parse_plot($content)
+{
+	$search = "/\[plot\](.*?)\[\/plot\]/is";
+	preg_match($search, $content, $filmid);
+	$film = FilmGetter_show_plot($filmid[1]);
+	$changedContent = preg_replace($search, "$film", $content);
+
+	return $changedContent;
+}
+
 function FilmGetter_parse_style($content)
 {
 	$path = get_settings('siteurl') . '/wp-content/plugins/filmgetter/style.css';
@@ -287,8 +263,106 @@ CSS;
 }
 add_filter('the_content', 'FilmGetter_parse_film', 2);
 add_filter('the_content', 'FilmGetter_parse_imdb', 2);
+add_filter('the_content', 'FilmGetter_parse_poster', 2);
+add_filter('the_content', 'FilmGetter_parse_plot', 2);
 add_filter('wp_head', 'FilmGetter_parse_style', 2);
 
+
+//show the movies information with pic for the tag [film]
+function FilmGetter_show_film($name)
+{
+	global $wpdb;
+	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
+    $sql = "SELECT * FROM ".$table." WHERE movie_name LIKE '{$name}' LIMIT 1";
+    
+    $results = $wpdb->get_results($sql);
+    
+    if(count($results) > 0)
+	{
+		foreach($results as $result)
+		{
+			$content .= "<div class='FilmGetter-film'><img src='".$result->movie_pic."' class='poster' /><strong>".$result->movie_name."</strong><br />".$result->movie_release." - ".$result->movie_rate."<br />".$result->movie_plot."<br /><a href='".$result->movie_trailer."'>Trailer</a> - <a href='".$result->movie_url."'>TMDb</a> - <a href='".$result->movie_imdb."'>IMDb</a><div class='clear'></div></div>";
+			$content .= "<div class='FilmGetter-fixer'></div>";
+		}				
+	}
+	else {
+		FilmGetter_search_andAdd_film($name);
+	}
+    
+    return $content;
+}
+
+//get the movie's imdb url and post it for the tag [imdb]
+function FilmGetter_show_imdb($name)
+{
+	global $wpdb;
+	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
+    $sql = "SELECT * FROM ".$table." WHERE movie_name LIKE '{$name}' LIMIT 1";
+    
+    $results = $wpdb->get_results($sql);
+    
+    if(count($results) > 0)
+	{
+		foreach($results as $result)
+		{
+			$content .= "<span class='FilmGetter-imdb'><a href='".$result->movie_imdb."'>IMDb</a></span>";
+		}				
+	}
+	else {
+		FilmGetter_search_andAdd_film($name);
+	}
+
+    
+    return $content;
+}
+
+//get the movie's poster and post it for the tag [poster]
+function FilmGetter_show_poster($name)
+{
+	global $wpdb;
+	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
+    $sql = "SELECT * FROM ".$table." WHERE movie_name LIKE '{$name}' LIMIT 1";
+    
+    $results = $wpdb->get_results($sql);
+    
+    if(count($results) > 0)
+	{
+		foreach($results as $result)
+		{
+			$content .= "<span class='FilmGetter-film'><img src='".$result->movie_pic."' class='poster' /></span>";
+		}				
+	}
+	else {
+		FilmGetter_search_andAdd_film($name);
+	}
+
+    
+    return $content;
+}
+
+//get the movie's plot and post it for the tag [plot]
+function FilmGetter_show_plot($name)
+{
+	global $wpdb;
+	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
+    $sql = "SELECT * FROM ".$table." WHERE movie_name LIKE '{$name}' LIMIT 1";
+    
+    $results = $wpdb->get_results($sql);
+    
+    if(count($results) > 0)
+	{
+		foreach($results as $result)
+		{
+			$content .= "<span class='FilmGetter-film'>".$result->movie_plot."</span>";
+		}				
+	}
+	else {
+		FilmGetter_search_andAdd_film($name);
+	}
+
+    
+    return $content;
+}
 
 //handle the whole admin section.
 function FilmGetter_menu()
