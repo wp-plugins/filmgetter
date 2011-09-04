@@ -11,12 +11,6 @@ FilmGetter uses tags to show information like Poster, plot, rating, release date
 
 Filmgetter gets the information from TMDb about a movie you have choosen. Adding it to the database and you can now use it's information with using the tags defined below. It will write out the information about the movie you want.
 
-Tags:
-* [film]movie title[/film]
-* [imdb]movie title[/imdb]
-* [poster]movie title[/poster]
-* [plot]movie title[/plot]
-
 
 == Installation ==
 
