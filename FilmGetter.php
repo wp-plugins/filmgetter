@@ -3,7 +3,7 @@
 Plugin Name: FilmGetter
 Plugin URI: http://dun.se/plugins/
 Description: Gets the Movie info from TheMoveDB.
-Version: 0.1.3.1
+Version: 0.1.4
 Author: Håkan Nylén
 Author URI: http://dun.se
 License: GPL2
