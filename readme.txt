@@ -2,7 +2,7 @@
 Contributors: confact
 Tags: movie, poster, imdb, TMDb, film, plot, rating
 Requires at least: 2.1
-Tested up to: 3.0
+Tested up to: 3.2.1
 Stable tag: 4.3
 
 FilmGetter uses tags to show information like Poster, plot, rating, release date, TMDb and imdb urls.
@@ -27,6 +27,11 @@ Filmgetter gets the information from TMDb about a movie you have choosen. Adding
 No screenshots for now.
 
 == Changelog ==
+
+= 0.1.4.1 =
+* fixed bug where the filters didn't got removed when the plugin got uninstalled.
+* fixed bug in styles where footer did came over the content in the admin page.
+* added information about which tags you can use on the admin page.
 
 = 0.1.4 =
 * Added [poster] feature

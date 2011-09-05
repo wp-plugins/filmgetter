@@ -3,7 +3,7 @@
 Plugin Name: FilmGetter
 Plugin URI: http://dun.se/plugins/
 Description: Gets the Movie info from TheMoveDB.
-Version: 0.1.4
+Version: 0.1.4.1
 Author: Håkan Nylén
 Author URI: http://dun.se
 License: GPL2
@@ -89,6 +89,8 @@ function FilmGetter_uninstall()
 	$table = $wpdb->prefix."FilmGetter"; //prefix for the tables in database
 	remove_filter('the_content', 'FilmGetter_parse_film', 2);
 	remove_filter('the_content', 'FilmGetter_parse_imdb', 2);
+	remove_filter('the_content', 'FilmGetter_parse_poster', 2);
+	remove_filter('the_content', 'FilmGetter_parse_plot', 2);
 	remove_filter('stylesheet', 'FilmGetter_parse_style', 2);
 	$structure = "DROP TABLE ".$table.";";
 	$wpdb->query($structure);
@@ -425,7 +427,7 @@ if (isset($_POST['update'])) {
 		echo "<div class='FilmGetter-fixer'></div>";
 	}
 	?>
-	<div style="display:block;width:100%;clear:both;"></div>
+	<div style="display:block;width:100%;clear:both;overflow:hidden;"></div>
 	<h3>Add Movie</h3>
 	<form method="post">
 	<p>Get the TMDb id for a film on <a href="http://www.themoviedb.org/">http://www.themoviedb.org</a> - take the nr in the url from the site.</p>
@@ -434,15 +436,18 @@ if (isset($_POST['update'])) {
 	<div class="submit">
 	<input type="submit" name="add_movie" value="<?php _e('Add Movie', 'FilmGetter') ?>" /></div>
 	</form>
-	</div>
 	
-	<div style="display:block;width:100%;clear:both;"></div>
-	<h3>Update the plugin</h3>
-	<form method="post">
-	<p>Update the plugin. from 0.1 to 0.1.2 - just update if you had 0.1 before 0.1.2 - not 0.1.1.</p>
-	<div class="submit">
-	<input type="submit" name="update" value="<?php _e('Update Plugin', 'FilmGetter') ?>" /></div>
-	</form>
+	<h3>Guide</h3>
+	<p>Here will you see a little help and what kind of tags you can use.</p>
+	<p>FilmGetter check the content and looks for tags and replace them with information for the movie tags says. The information depends on which tags you use.</p>
+	<h4>Tags</h4>
+	<ul>
+		<li>[film]movie title[/film]<br />show all the information for the movie</li>
+		<li>[imdb]movie title[/imdb]<br />show the imdb-link for the movie</li>
+		<li>[poster]movie title[/poster]<br />show the poster for the movie</li>
+		<li>[plot]movie title[/plot]<br />Show the plot for the movie</li>
+	</ul>
+	<p>where movie title should be the title of the movie, with spaces.</p>
 	</div>
 	<?
 }
